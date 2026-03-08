@@ -141,7 +141,7 @@ public static class ApiClient
     public static async Task<ActorInfo> GetActorInfoAsync(string provider, string id, bool lazy,
         CancellationToken cancellationToken)
     {
-        return await GetFirstSuccessAsync(
+        return await GetFirstSuccessAsync<ActorInfo>(
             server => ComposeInfoApiUrl(server, ActorInfoApi, provider, id, lazy),
             true, cancellationToken);
     }
@@ -155,7 +155,7 @@ public static class ApiClient
     public static async Task<MovieInfo> GetMovieInfoAsync(string provider, string id, bool lazy,
         CancellationToken cancellationToken)
     {
-        return await GetFirstSuccessAsync(
+        return await GetFirstSuccessAsync<MovieInfo>(
             server => ComposeInfoApiUrl(server, MovieInfoApi, provider, id, lazy),
             true, cancellationToken);
     }
@@ -175,7 +175,7 @@ public static class ApiClient
     public static async Task<List<ActorSearchResult>> SearchActorAsync(string q, string provider,
         bool fallback, CancellationToken cancellationToken)
     {
-        return await SearchAndMergeAsync(
+        return await SearchAndMergeAsync<ActorSearchResult>(
             server => ComposeSearchApiUrl(server, ActorSearchApi, q, provider, fallback),
             r => (r.Provider, r.Id),
             true, cancellationToken);
@@ -196,7 +196,7 @@ public static class ApiClient
     public static async Task<List<MovieSearchResult>> SearchMovieAsync(string q, string provider,
         bool fallback, CancellationToken cancellationToken)
     {
-        return await SearchAndMergeAsync(
+        return await SearchAndMergeAsync<MovieSearchResult>(
             server => ComposeSearchApiUrl(server, MovieSearchApi, q, provider, fallback),
             r => (r.Provider, r.Id),
             true, cancellationToken);
@@ -205,7 +205,7 @@ public static class ApiClient
     public static async Task<TranslationInfo> TranslateAsync(string q, string from, string to, string engine,
         NameValueCollection nv, CancellationToken cancellationToken)
     {
-        return await GetFirstSuccessAsync(
+        return await GetFirstSuccessAsync<TranslationInfo>(
             server => ComposeTranslateApiUrl(server, TranslateApi, q, from, to, engine, nv),
             false, cancellationToken);
     }
