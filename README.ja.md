@@ -6,23 +6,23 @@
 <br/>
 <br/>
 
-<a href="https://github.com/metatube-community/jellyfin-plugin-metatube/actions">
-<img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/metatube-community/jellyfin-plugin-metatube/dotnetcore.yml?branch=main&logo=github">
+<a href="https://github.com/jaconey/jellyfin-plugin-metatube/actions">
+<img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/jaconey/jellyfin-plugin-metatube/dotnetcore.yml?branch=main&logo=github">
 </a>
-<a href="https://github.com/metatube-community/jellyfin-plugin-metatube/search?l=c%23">
-<img alt="GitHub top language" src="https://img.shields.io/github/languages/top/metatube-community/jellyfin-plugin-metatube?color=%23239120&label=.NET&logo=csharp">
+<a href="https://github.com/jaconey/jellyfin-plugin-metatube/search?l=c%23">
+<img alt="GitHub top language" src="https://img.shields.io/github/languages/top/jaconey/jellyfin-plugin-metatube?color=%23239120&label=.NET&logo=csharp">
 </a>
-<a href="https://github.com/metatube-community/jellyfin-plugin-metatube/blob/main/LICENSE">
-<img alt="License" src="https://img.shields.io/github/license/metatube-community/jellyfin-plugin-metatube">
+<a href="https://github.com/jaconey/jellyfin-plugin-metatube/blob/main/LICENSE">
+<img alt="License" src="https://img.shields.io/github/license/jaconey/jellyfin-plugin-metatube">
 </a>
-<a href="https://github.com/metatube-community/jellyfin-plugin-metatube">
-<img alt="gitHub Stars" src="https://img.shields.io/github/stars/metatube-community/jellyfin-plugin-metatube?style=flat">
+<a href="https://github.com/jaconey/jellyfin-plugin-metatube">
+<img alt="gitHub Stars" src="https://img.shields.io/github/stars/jaconey/jellyfin-plugin-metatube?style=flat">
 </a>
-<a href="https://github.com/metatube-community/jellyfin-plugin-metatube">
-<img alt="Downloads" src="https://img.shields.io/github/downloads/metatube-community/jellyfin-plugin-metatube/total">
+<a href="https://github.com/jaconey/jellyfin-plugin-metatube">
+<img alt="Downloads" src="https://img.shields.io/github/downloads/jaconey/jellyfin-plugin-metatube/total">
 </a>
-<a href="https://github.com/metatube-community/jellyfin-plugin-metatube/releases">
-<img alt="Releases" src="https://img.shields.io/github/v/release/metatube-community/jellyfin-plugin-metatube?include_prereleases&logo=smartthings">
+<a href="https://github.com/jaconey/jellyfin-plugin-metatube/releases">
+<img alt="Releases" src="https://img.shields.io/github/v/release/jaconey/jellyfin-plugin-metatube?include_prereleases&logo=smartthings">
 </a>
 </p>
 
@@ -59,12 +59,12 @@ _※本プロジェクトは Jellyfin の安定版のみをサポートしてい
 
 ## コミュニティ
 
-質問や提案などは、[Discussions](https://github.com/metatube-community/jellyfin-plugin-metatube/discussions) にてお気軽にどうぞ。
+質問や提案などは、[Discussions](https://github.com/jaconey/jellyfin-plugin-metatube/discussions) にてお気軽にどうぞ。
 
 ## ライセンス
 
-本プラグインは [MIT](https://github.com/metatube-community/jellyfin-plugin-metatube/blob/main/LICENSE) ライセンスの下で公開されています。
+本プラグインは [MIT](https://github.com/jaconey/jellyfin-plugin-metatube/blob/main/LICENSE) ライセンスの下で公開されています。
 
 ## スター履歴
 
-[![Star History Chart](https://api.star-history.com/svg?repos=metatube-community/jellyfin-plugin-metatube&type=Date)](https://star-history.com/#metatube-community/jellyfin-plugin-metatube&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=jaconey/jellyfin-plugin-metatube&type=Date)](https://star-history.com/#jaconey/jellyfin-plugin-metatube&Date)
