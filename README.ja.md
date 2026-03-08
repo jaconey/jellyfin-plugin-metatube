@@ -28,12 +28,13 @@
 
 ## 概要
 
-Jellyfin／Emby 向けに開発された、とても便利なメタデータプラグインです。
+Jellyfin 向けに開発された、とても便利なメタデータプラグインです。
 
 ## 特徴
 
 - 完全なデータ：タイトル、概要、出演者、タグ、評価 などを含む豊富な情報を提供。
 - 強力な検索機能：多数のスクレイピングソースから作品や俳優情報を検索可能。
+- マルチサーバー：複数のMetaTubeバックエンドサーバーを設定し、並列クエリをサポート。
 - トレーラー機能：動画をダウンロードせずに オンラインで予告編を視聴。
 - スケジュールタスク：自動的に作品タグを整理し、バックグラウンドでプラグインを更新。
 - 顔認識機能：内蔵の顔認識により、顔を中心にポスター画像を自動トリミング。
@@ -42,9 +43,8 @@ Jellyfin／Emby 向けに開発された、とても便利なメタデータプ�
 ## 対応プラットフォーム
 
 [![Jellyfin](https://img.shields.io/static/v1?color=%2300A4DC&style=for-the-badge&label=Jellyfin&logo=jellyfin&message=10.11.x)](https://jellyfin.org/)
-[![Emby](https://img.shields.io/static/v1?color=%2352B54B&style=for-the-badge&label=Emby&logo=emby&message=4.9.x)](https://emby.media/)
 
-_※本プロジェクトは Jellyfin／Emby の安定版のみをサポートしています。_
+_※本プロジェクトは Jellyfin の安定版のみをサポートしています。_
 
 ## ドキュメント
 

@@ -28,21 +28,21 @@
 
 ## About
 
-MetaTube Plugin for Jellyfin/Emby.
+MetaTube Plugin for Jellyfin.
 
 ## Features
 
 - Full Metadata: Including title, overview, genres, director, actors, and studio.
 - Full Search: Support searching for movies and actors across various providers.
+- Multi-Server: Support configuring multiple MetaTube backend servers with parallel querying.
 - Trailer Video: Support trailers without downloading the full trailer videos.
 - Scheduled Task: Automatically organize metadata genres and update plugin.
 - Face Detection: Cut primary image with face centered by face detection engine.
 - Auto Translation: Support translate certain metadata to preferred language.
 
-## Platforms
+## Platform
 
 [![Jellyfin](https://img.shields.io/static/v1?color=%2300A4DC&style=for-the-badge&label=Jellyfin&logo=jellyfin&message=10.11.x)](https://jellyfin.org/)
-[![Emby](https://img.shields.io/static/v1?color=%2352B54B&style=for-the-badge&label=Emby&logo=emby&message=4.9.x)](https://emby.media/)
 
 _NOTE: This project will only support stable versions._
 

@@ -1,4 +1,3 @@
-#if !__EMBY__
 using Jellyfin.Plugin.MetaTube.ExternalIds;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
@@ -27,4 +26,3 @@ public class ExternalUrlProvider : IExternalUrlProvider
         }
     }
 }
-#endif

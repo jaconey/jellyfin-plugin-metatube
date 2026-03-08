@@ -4,32 +4,17 @@ using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Providers;
-#if __EMBY__
-using MediaBrowser.Model.Configuration;
-using MediaBrowser.Model.Logging;
-
-#else
 using Microsoft.Extensions.Logging;
-#endif
 
 namespace Jellyfin.Plugin.MetaTube.Providers;
 
 public class MovieImageProvider : BaseProvider, IRemoteImageProvider, IHasOrder
 {
-#if __EMBY__
-    public MovieImageProvider(ILogManager logManager) : base(logManager.CreateLogger<MovieImageProvider>())
-#else
     public MovieImageProvider(ILogger<MovieImageProvider> logger) : base(logger)
-#endif
     {
     }
 
-#if __EMBY__
-    public async Task<IEnumerable<RemoteImageInfo>> GetImages(BaseItem item, LibraryOptions libraryOptions,
-        CancellationToken cancellationToken)
-#else
     public async Task<IEnumerable<RemoteImageInfo>> GetImages(BaseItem item, CancellationToken cancellationToken)
-#endif
     {
         var pid = item.GetPid(Plugin.ProviderId);
         if (string.IsNullOrWhiteSpace(pid.Id) || string.IsNullOrWhiteSpace(pid.Provider))

@@ -1,4 +1,3 @@
-#if !__EMBY__
 #pragma warning disable CA2254
 
 using MediaBrowser.Controller.Entities.Movies;
@@ -43,4 +42,3 @@ public static class JellyfinExtensions
 }
 
 #pragma warning restore CA2254
-#endif

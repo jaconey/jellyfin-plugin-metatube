@@ -3,9 +3,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Web;
 using Jellyfin.Plugin.MetaTube.Metadata;
-#if __EMBY__
-using MediaBrowser.Common.Net;
-#endif
 
 namespace Jellyfin.Plugin.MetaTube;
 
@@ -20,13 +17,26 @@ public static class ApiClient
     private const string BackdropImageApi = "/v1/images/backdrop";
     private const string TranslateApi = "/v1/translate";
 
-    private static string ComposeUrl(string path, NameValueCollection nv)
+    private static string[] GetServers()
+    {
+        return Plugin.Instance.Configuration.Servers?
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .ToArray() ?? Array.Empty<string>();
+    }
+
+    private static string GetPrimaryServer()
+    {
+        var servers = GetServers();
+        return servers.Length > 0 ? servers[0] : string.Empty;
+    }
+
+    private static string ComposeUrl(string server, string path, NameValueCollection nv)
     {
         var query = HttpUtility.ParseQueryString(string.Empty);
         foreach (string key in nv) query.Add(key, nv.Get(key));
 
         // Build URL
-        var uriBuilder = new UriBuilder(Plugin.Instance.Configuration.Server)
+        var uriBuilder = new UriBuilder(server)
         {
             Path = path,
             Query = query.ToString() ?? string.Empty
@@ -37,7 +47,7 @@ public static class ApiClient
     private static string ComposeImageApiUrl(string path, string provider, string id, string url = default,
         double ratio = -1, double position = -1, bool auto = false, string badge = default)
     {
-        return ComposeUrl(Path.Combine(path, provider, id), new NameValueCollection
+        return ComposeUrl(GetPrimaryServer(), Path.Combine(path, provider, id), new NameValueCollection
         {
             { "url", url },
             { "ratio", ratio.ToString("R") },
@@ -48,17 +58,17 @@ public static class ApiClient
         });
     }
 
-    private static string ComposeInfoApiUrl(string path, string provider, string id, bool lazy)
+    private static string ComposeInfoApiUrl(string server, string path, string provider, string id, bool lazy)
     {
-        return ComposeUrl(Path.Combine(path, provider, id), new NameValueCollection
+        return ComposeUrl(server, Path.Combine(path, provider, id), new NameValueCollection
         {
             { "lazy", lazy.ToString() }
         });
     }
 
-    private static string ComposeSearchApiUrl(string path, string q, string provider, bool fallback)
+    private static string ComposeSearchApiUrl(string server, string path, string q, string provider, bool fallback)
     {
-        return ComposeUrl(path, new NameValueCollection
+        return ComposeUrl(server, path, new NameValueCollection
         {
             { "q", q },
             { "provider", provider },
@@ -66,10 +76,10 @@ public static class ApiClient
         });
     }
 
-    private static string ComposeTranslateApiUrl(string path, string q, string from, string to, string engine,
-        NameValueCollection nv = null)
+    private static string ComposeTranslateApiUrl(string server, string path, string q, string from, string to,
+        string engine, NameValueCollection nv = null)
     {
-        return ComposeUrl(path, new NameValueCollection
+        return ComposeUrl(server, path, new NameValueCollection
         {
             { "q", q },
             { "from", from },
@@ -79,7 +89,8 @@ public static class ApiClient
         });
     }
 
-    public static string GetPrimaryImageApiUrl(string provider, string id, double position = -1, string badge = default)
+    public static string GetPrimaryImageApiUrl(string provider, string id, double position = -1,
+        string badge = default)
     {
         return ComposeImageApiUrl(PrimaryImageApi, provider, id,
             ratio: Plugin.Instance.Configuration.PrimaryImageRatio, position: position, badge: badge);
@@ -114,27 +125,11 @@ public static class ApiClient
         return ComposeImageApiUrl(BackdropImageApi, provider, id, url, position: position, auto: auto);
     }
 
-#if __EMBY__
-    public static async Task<HttpResponseInfo> GetImageResponse(string url, CancellationToken cancellationToken)
-#else
     public static async Task<HttpResponseMessage> GetImageResponse(string url, CancellationToken cancellationToken)
-#endif
     {
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Add("User-Agent", DefaultUserAgent);
-        var response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-#if __EMBY__
-        return new HttpResponseInfo
-        {
-            Content = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false),
-            ContentLength = response.Content.Headers.ContentLength,
-            ContentType = response.Content.Headers.ContentType?.ToString(),
-            StatusCode = response.StatusCode,
-            Headers = response.Content.Headers.ToDictionary(kvp => kvp.Key, kvp => string.Join(", ", kvp.Value))
-        };
-#else
-        return response;
-#endif
+        return await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
     }
 
     public static async Task<ActorInfo> GetActorInfoAsync(string provider, string id,
@@ -146,8 +141,9 @@ public static class ApiClient
     public static async Task<ActorInfo> GetActorInfoAsync(string provider, string id, bool lazy,
         CancellationToken cancellationToken)
     {
-        var apiUrl = ComposeInfoApiUrl(ActorInfoApi, provider, id, lazy);
-        return await GetDataAsync<ActorInfo>(apiUrl, true, cancellationToken);
+        return await GetFirstSuccessAsync(
+            server => ComposeInfoApiUrl(server, ActorInfoApi, provider, id, lazy),
+            true, cancellationToken);
     }
 
     public static async Task<MovieInfo> GetMovieInfoAsync(string provider, string id,
@@ -159,8 +155,9 @@ public static class ApiClient
     public static async Task<MovieInfo> GetMovieInfoAsync(string provider, string id, bool lazy,
         CancellationToken cancellationToken)
     {
-        var apiUrl = ComposeInfoApiUrl(MovieInfoApi, provider, id, lazy);
-        return await GetDataAsync<MovieInfo>(apiUrl, true, cancellationToken);
+        return await GetFirstSuccessAsync(
+            server => ComposeInfoApiUrl(server, MovieInfoApi, provider, id, lazy),
+            true, cancellationToken);
     }
 
     public static async Task<List<ActorSearchResult>> SearchActorAsync(string q,
@@ -178,8 +175,10 @@ public static class ApiClient
     public static async Task<List<ActorSearchResult>> SearchActorAsync(string q, string provider,
         bool fallback, CancellationToken cancellationToken)
     {
-        var apiUrl = ComposeSearchApiUrl(ActorSearchApi, q, provider, fallback);
-        return await GetDataAsync<List<ActorSearchResult>>(apiUrl, true, cancellationToken);
+        return await SearchAndMergeAsync(
+            server => ComposeSearchApiUrl(server, ActorSearchApi, q, provider, fallback),
+            r => (r.Provider, r.Id),
+            true, cancellationToken);
     }
 
     public static async Task<List<MovieSearchResult>> SearchMovieAsync(string q,
@@ -197,15 +196,120 @@ public static class ApiClient
     public static async Task<List<MovieSearchResult>> SearchMovieAsync(string q, string provider,
         bool fallback, CancellationToken cancellationToken)
     {
-        var apiUrl = ComposeSearchApiUrl(MovieSearchApi, q, provider, fallback);
-        return await GetDataAsync<List<MovieSearchResult>>(apiUrl, true, cancellationToken);
+        return await SearchAndMergeAsync(
+            server => ComposeSearchApiUrl(server, MovieSearchApi, q, provider, fallback),
+            r => (r.Provider, r.Id),
+            true, cancellationToken);
     }
 
     public static async Task<TranslationInfo> TranslateAsync(string q, string from, string to, string engine,
         NameValueCollection nv, CancellationToken cancellationToken)
     {
-        var apiUrl = ComposeTranslateApiUrl(TranslateApi, q, from, to, engine, nv);
-        return await GetDataAsync<TranslationInfo>(apiUrl, false, cancellationToken);
+        return await GetFirstSuccessAsync(
+            server => ComposeTranslateApiUrl(server, TranslateApi, q, from, to, engine, nv),
+            false, cancellationToken);
+    }
+
+    /// <summary>
+    /// Query all servers in parallel for search operations, merge and deduplicate results.
+    /// Only fails when all servers fail.
+    /// </summary>
+    private static async Task<List<T>> SearchAndMergeAsync<T>(
+        Func<string, string> urlComposer,
+        Func<T, (string, string)> dedupeKeySelector,
+        bool requireAuth,
+        CancellationToken cancellationToken)
+    {
+        var servers = GetServers();
+        if (servers.Length == 0)
+            throw new Exception("No MetaTube servers configured");
+
+        if (servers.Length == 1)
+        {
+            var url = urlComposer(servers[0]);
+            return await GetDataAsync<List<T>>(url, requireAuth, cancellationToken);
+        }
+
+        // Query all servers in parallel.
+        var tasks = servers.Select(async server =>
+        {
+            try
+            {
+                var url = urlComposer(server);
+                return await GetDataAsync<List<T>>(url, requireAuth, cancellationToken);
+            }
+            catch
+            {
+                return null;
+            }
+        }).ToList();
+
+        var results = await Task.WhenAll(tasks);
+
+        var successfulResults = results.Where(r => r != null).ToList();
+        if (!successfulResults.Any())
+            throw new Exception("All MetaTube servers failed to respond");
+
+        // Merge and deduplicate results.
+        var seen = new HashSet<(string, string)>();
+        var merged = new List<T>();
+        foreach (var resultList in successfulResults)
+        {
+            foreach (var item in resultList)
+            {
+                var key = dedupeKeySelector(item);
+                if (seen.Add(key))
+                    merged.Add(item);
+            }
+        }
+
+        return merged;
+    }
+
+    /// <summary>
+    /// Query all servers in parallel for single-result operations.
+    /// Returns the first successful response. Only fails when all servers fail.
+    /// </summary>
+    private static async Task<T> GetFirstSuccessAsync<T>(
+        Func<string, string> urlComposer,
+        bool requireAuth,
+        CancellationToken cancellationToken)
+    {
+        var servers = GetServers();
+        if (servers.Length == 0)
+            throw new Exception("No MetaTube servers configured");
+
+        if (servers.Length == 1)
+        {
+            var url = urlComposer(servers[0]);
+            return await GetDataAsync<T>(url, requireAuth, cancellationToken);
+        }
+
+        // Query all servers in parallel.
+        var tasks = servers.Select(async server =>
+        {
+            var url = urlComposer(server);
+            return await GetDataAsync<T>(url, requireAuth, cancellationToken);
+        }).ToList();
+
+        // Return the first successful result.
+        var exceptions = new List<Exception>();
+        while (tasks.Any())
+        {
+            var completed = await Task.WhenAny(tasks);
+            tasks.Remove(completed);
+
+            try
+            {
+                return await completed;
+            }
+            catch (Exception e)
+            {
+                exceptions.Add(e);
+            }
+        }
+
+        throw new AggregateException("All MetaTube servers failed to respond", exceptions);
     }
 
     private static async Task<T> GetDataAsync<T>(string url, bool requireAuth,

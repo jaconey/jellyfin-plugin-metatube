@@ -13,7 +13,7 @@
             <h1>MetaTube</h1>
 
             <div class="readOnlyContent">
-                <p class="description1">MetaTube Plugin for Jellyfin/Emby. <a class="button-link emby-button" href="https://metatube-community.github.io" is="emby-linkbutton" target="_blank">Learn more</a>.</p>
+                <p class="description1">MetaTube Plugin for Jellyfin. <a class="button-link emby-button" href="https://metatube-community.github.io" is="emby-linkbutton" target="_blank">Learn more</a>.</p>
             </div>
 
             <form class="MetaTubeConfigurationForm">
@@ -22,10 +22,9 @@
                     <h2>General</h2>
 
                     <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="txtServer">Server:</label>
-                        <input id="txtServer" is="emby-input" name="txtServer" pattern="^https?://.+$" required
-                               type="text"/>
-                        <div class="fieldDescription">Full url of the MetaTube Server, HTTPS protocol is recommended.</div>
+                        <label class="inputLabel inputLabel-float inputLabelUnfocused" for="txtServers">Servers:</label>
+                        <textarea class="emby-input" id="txtServers" is="emby-input" name="txtServers" rows="3"></textarea>
+                        <div class="fieldDescription">Full urls of the MetaTube Servers, one per line. All servers are queried in parallel. HTTPS protocol is recommended.</div>
                     </div>
 
                     <div class="inputContainer">
@@ -341,7 +340,8 @@
             Dashboard.showLoadingMsg();
             var page = this;
             ApiClient.getPluginConfiguration(MetaTubePluginConfig.pluginUniqueId).then(function (config) {
-                $('#txtServer', page).val(config.Server).change();
+                // Convert Servers array to newline-separated text
+                $('#txtServers', page).val((config.Servers || []).join('\n')).change();
                 $('#txtToken', page).val(config.Token).change();
                 page.querySelector('#chkEnableCollections').checked = config.EnableCollections;
                 page.querySelector('#chkEnableDirectors').checked = config.EnableDirectors;
@@ -382,7 +382,8 @@
             Dashboard.showLoadingMsg();
             var form = this;
             ApiClient.getPluginConfiguration(MetaTubePluginConfig.pluginUniqueId).then(function (config) {
-                config.Server = $('#txtServer', form).val();
+                // Convert newline-separated text to Servers array, filtering empty lines
+                config.Servers = $('#txtServers', form).val().split('\n').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
                 config.Token = $('#txtToken', form).val();
                 config.EnableCollections = $('#chkEnableCollections', form).prop('checked');
                 config.EnableDirectors = $('#chkEnableDirectors', form).prop('checked');
@@ -405,7 +406,7 @@
                 config.GoogleApiKey = $('#txtGoogleApiKey', form).val();
                 config.GoogleApiUrl = $('#txtGoogleApiUrl', form).val();
                 config.DeepLApiKey = $('#txtDeepLApiKey', form).val();
-                config.DeepLXAltUrl = $('#txtDeepLApiUrl', form).val();
+                config.DeepLApiUrl = $('#txtDeepLApiUrl', form).val();
                 config.OpenAiApiKey = $('#txtOpenAiApiKey', form).val();
                 config.OpenAiApiUrl = $('#txtOpenAiApiUrl', form).val();
                 config.OpenAiModel = $('#txtOpenAiModel', form).val();
