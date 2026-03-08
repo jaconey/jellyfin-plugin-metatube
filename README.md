@@ -42,7 +42,7 @@ MetaTube Plugin for Jellyfin.
 
 ## Platform
 
-[![Jellyfin](https://img.shields.io/static/v1?color=%2300A4DC&style=for-the-badge&label=Jellyfin&logo=jellyfin&message=10.11.x)](https://jellyfin.org/)
+[![Jellyfin](https://img.shields.io/static/v1?color=%2300A4DC&style=for-the-badge&label=Jellyfin&logo=jellyfin&message=10.11.1)](https://jellyfin.org/)
 
 _NOTE: This project will only support stable versions._
 
