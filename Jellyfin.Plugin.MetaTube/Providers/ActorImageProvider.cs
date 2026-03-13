@@ -29,16 +29,22 @@ public class ActorImageProvider : BaseProvider, IRemoteImageProvider, IHasOrder
             Logger.Info("Actor image source url: {0} for item: {1}", imageUrl, item.Name);
         }
 
-        var images = actorInfo.Images.Select(image => new RemoteImageInfo
+        var images = actorInfo.Images.Select(image =>
         {
-            ProviderName = Name,
-            Type = ImageType.Primary,
-            Url = ApiClient.GetPrimaryImageApiUrl(actorInfo.Provider, actorInfo.Id, image, 0.5, true)
+            var primaryUrl = ApiClient.GetPrimaryImageApiUrl(actorInfo.Provider, actorInfo.Id, image, 0.5, true);
+            return new RemoteImageInfo
+            {
+                ProviderName = Name,
+                Type = ImageType.Primary,
+                Url = primaryUrl,
+                ThumbnailUrl = GetPublicImageUrl(primaryUrl)
+            };
         }).ToList();
 
         foreach (var image in images)
         {
-            Logger.Info("Actor image url: {0} for item: {1}", image.Url, item.Name);
+            Logger.Info("Actor image url: {0} (thumb: {1}) for item: {2}", image.Url, image.ThumbnailUrl,
+                item.Name);
         }
 
         return images;

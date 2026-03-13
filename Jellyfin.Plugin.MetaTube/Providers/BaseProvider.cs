@@ -19,6 +19,14 @@ public abstract class BaseProvider
 
     public virtual string Name => Plugin.ProviderName;
 
+    protected string? GetPublicImageUrl(string url)
+    {
+        var publicBaseUrl = Configuration.PublicImageBaseUrl;
+        return string.IsNullOrWhiteSpace(publicBaseUrl)
+            ? null
+            : ApiClient.ReplaceImageBaseUrl(url, publicBaseUrl);
+    }
+
     public async Task<HttpResponseMessage> GetImageResponse(string url, CancellationToken cancellationToken)
     {
         Logger.Info("GetImageResponse for url: {0}", url);

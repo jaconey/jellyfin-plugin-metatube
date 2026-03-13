@@ -8,6 +8,8 @@ public class PluginConfiguration : BasePluginConfiguration
 {
     public string[] Servers { get; set; } = Array.Empty<string>();
 
+    public string PublicImageBaseUrl { get; set; } = string.Empty;
+
     public string Token { get; set; } = string.Empty;
 
     public bool EnableCollections { get; set; } = false;

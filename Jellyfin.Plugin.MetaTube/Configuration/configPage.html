@@ -28,6 +28,12 @@
                     </div>
 
                     <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="txtPublicImageBaseUrl">Public image base url:</label>
+                        <input id="txtPublicImageBaseUrl" is="emby-input" name="txtPublicImageBaseUrl" type="text"/>
+                        <div class="fieldDescription">Optional base url used only for browser previews when the server address isn't reachable by clients. Example: https://metatube.example.com</div>
+                    </div>
+
+                    <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="txtToken">Token:</label>
                         <input id="txtToken" is="emby-input" name="txtToken" type="text"/>
                         <div class="fieldDescription">Access token for the MetaTube Server, or blank if no token is set by the backend.</div>
@@ -342,6 +348,7 @@
             ApiClient.getPluginConfiguration(MetaTubePluginConfig.pluginUniqueId).then(function (config) {
                 // Convert Servers array to newline-separated text
                 $('#txtServers', page).val((config.Servers || []).join('\n')).change();
+                $('#txtPublicImageBaseUrl', page).val(config.PublicImageBaseUrl).change();
                 $('#txtToken', page).val(config.Token).change();
                 page.querySelector('#chkEnableCollections').checked = config.EnableCollections;
                 page.querySelector('#chkEnableDirectors').checked = config.EnableDirectors;
@@ -384,6 +391,7 @@
             ApiClient.getPluginConfiguration(MetaTubePluginConfig.pluginUniqueId).then(function (config) {
                 // Convert newline-separated text to Servers array, filtering empty lines
                 config.Servers = $('#txtServers', form).val().split('\n').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+                config.PublicImageBaseUrl = $('#txtPublicImageBaseUrl', form).val();
                 config.Token = $('#txtToken', form).val();
                 config.EnableCollections = $('#chkEnableCollections', form).prop('checked');
                 config.EnableDirectors = $('#chkEnableDirectors', form).prop('checked');

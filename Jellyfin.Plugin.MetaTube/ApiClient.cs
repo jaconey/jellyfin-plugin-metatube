@@ -153,6 +153,28 @@ public static class ApiClient
         return builder.ToString();
     }
 
+    public static string ReplaceImageBaseUrl(string url, string publicBaseUrl)
+    {
+        if (string.IsNullOrWhiteSpace(publicBaseUrl))
+            return url;
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var originalUri))
+            return url;
+
+        if (!Uri.TryCreate(publicBaseUrl, UriKind.Absolute, out var publicBaseUri))
+            return url;
+
+        var newPath = publicBaseUri.AbsolutePath.TrimEnd('/') + originalUri.AbsolutePath;
+        var builder = new UriBuilder(originalUri)
+        {
+            Scheme = publicBaseUri.Scheme,
+            Host = publicBaseUri.Host,
+            Port = publicBaseUri.IsDefaultPort ? -1 : publicBaseUri.Port,
+            Path = newPath
+        };
+        return builder.ToString();
+    }
+
     public static async Task<ActorInfo> GetActorInfoAsync(string provider, string id,
         CancellationToken cancellationToken)
     {
