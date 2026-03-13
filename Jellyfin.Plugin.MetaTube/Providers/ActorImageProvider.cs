@@ -24,12 +24,24 @@ public class ActorImageProvider : BaseProvider, IRemoteImageProvider, IHasOrder
         if (actorInfo.Images?.Any() != true)
             return Enumerable.Empty<RemoteImageInfo>();
 
-        return actorInfo.Images.Select(image => new RemoteImageInfo
+        foreach (var imageUrl in actorInfo.Images)
+        {
+            Logger.Info("Actor image source url: {0} for item: {1}", imageUrl, item.Name);
+        }
+
+        var images = actorInfo.Images.Select(image => new RemoteImageInfo
         {
             ProviderName = Name,
             Type = ImageType.Primary,
             Url = ApiClient.GetPrimaryImageApiUrl(actorInfo.Provider, actorInfo.Id, image, 0.5, true)
-        });
+        }).ToList();
+
+        foreach (var image in images)
+        {
+            Logger.Info("Actor image url: {0} for item: {1}", image.Url, item.Name);
+        }
+
+        return images;
     }
 
     public bool Supports(BaseItem item)

@@ -19,9 +19,19 @@ public abstract class BaseProvider
 
     public virtual string Name => Plugin.ProviderName;
 
-    public Task<HttpResponseMessage> GetImageResponse(string url, CancellationToken cancellationToken)
+    public async Task<HttpResponseMessage> GetImageResponse(string url, CancellationToken cancellationToken)
     {
-        Logger.Debug("GetImageResponse for url: {0}", url);
-        return ApiClient.GetImageResponse(url, cancellationToken);
+        Logger.Info("GetImageResponse for url: {0}", url);
+        try
+        {
+            var response = await ApiClient.GetImageResponse(url, cancellationToken).ConfigureAwait(false);
+            Logger.Info("GetImageResponse status: {0} for url: {1}", (int)response.StatusCode, url);
+            return response;
+        }
+        catch (Exception e)
+        {
+            Logger.Error("GetImageResponse failed for url: {0} ({1})", url, e.Message);
+            throw;
+        }
     }
 }

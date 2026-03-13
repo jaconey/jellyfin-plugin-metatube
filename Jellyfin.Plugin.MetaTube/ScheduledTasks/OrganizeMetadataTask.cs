@@ -68,7 +68,8 @@ public class OrganizeMetadataTask : IScheduledTask
                     {
                         genres.Add(ChineseSubtitle);
                         if (Plugin.Instance.Configuration.EnableBadges)
-                            await SetPrimaryImage(item, Plugin.Instance.Configuration.BadgeUrl, cancellationToken);
+                            await SetPrimaryImage(item, Plugin.Instance.Configuration.BadgeUrl, _logger,
+                                cancellationToken);
                         break;
                     }
                     // Remove `ChineseSubtitle` genre.
@@ -76,7 +77,7 @@ public class OrganizeMetadataTask : IScheduledTask
                     {
                         genres.RemoveAll(s => s.Equals(ChineseSubtitle));
                         if (Plugin.Instance.Configuration.EnableBadges)
-                            await SetPrimaryImage(item, string.Empty, cancellationToken);
+                            await SetPrimaryImage(item, string.Empty, _logger, cancellationToken);
                         break;
                     }
                 }
@@ -148,7 +149,8 @@ public class OrganizeMetadataTask : IScheduledTask
                                      .Equals(basename, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static async Task SetPrimaryImage(BaseItem item, string badge, CancellationToken cancellationToken)
+    private static async Task SetPrimaryImage(BaseItem item, string badge, ILogger logger,
+        CancellationToken cancellationToken)
     {
         var pid = item.GetPid(Plugin.ProviderId);
         if (string.IsNullOrWhiteSpace(pid.Id) || string.IsNullOrWhiteSpace(pid.Provider))
@@ -156,9 +158,11 @@ public class OrganizeMetadataTask : IScheduledTask
 
         var m = await ApiClient.GetMovieInfoAsync(pid.Provider, pid.Id, cancellationToken);
         // Set first primary image.
+        var imageUrl = ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, pid.Position ?? -1, badge);
+        logger.Info("SetPrimaryImage url: {0} for item: {1}", imageUrl, item.Name);
         item.SetImage(new ItemImageInfo
         {
-            Path = ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, pid.Position ?? -1, badge),
+            Path = imageUrl,
             Type = ImageType.Primary
         }, 0);
     }

@@ -21,50 +21,58 @@ public class MovieImageProvider : BaseProvider, IRemoteImageProvider, IHasOrder
             return Enumerable.Empty<RemoteImageInfo>();
 
         var m = await ApiClient.GetMovieInfoAsync(pid.Provider, pid.Id, cancellationToken);
+        Logger.Info("Movie image source urls for item: {0} cover: {1} thumb: {2} backdrop: {3}",
+            item.Name, m.CoverUrl, m.ThumbUrl, m.BigCoverUrl);
         var images = new List<RemoteImageInfo>
         {
             new()
             {
                 ProviderName = Name,
                 Type = ImageType.Primary,
-                Url = ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, pid.Position ?? -1)
+                Url = ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, m.CoverUrl, pid.Position ?? -1, true)
             },
             new()
             {
                 ProviderName = Name,
                 Type = ImageType.Thumb,
-                Url = ApiClient.GetThumbImageApiUrl(m.Provider, m.Id)
+                Url = ApiClient.GetThumbImageApiUrl(m.Provider, m.Id, m.ThumbUrl, pid.Position ?? -1, true)
             },
             new()
             {
                 ProviderName = Name,
                 Type = ImageType.Backdrop,
-                Url = ApiClient.GetBackdropImageApiUrl(m.Provider, m.Id)
+                Url = ApiClient.GetBackdropImageApiUrl(m.Provider, m.Id, m.BigCoverUrl, -1, true)
             }
         };
 
         foreach (var imageUrl in m.PreviewImages ?? Enumerable.Empty<string>())
         {
+            Logger.Info("Movie preview image source url: {0} for item: {1}", imageUrl, item.Name);
             images.Add(new RemoteImageInfo
             {
                 ProviderName = Name,
                 Type = ImageType.Primary,
-                Url = ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, imageUrl, pid.Position ?? -1)
+                Url = ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, imageUrl, pid.Position ?? -1, true)
             });
 
             images.Add(new RemoteImageInfo
             {
                 ProviderName = Name,
                 Type = ImageType.Thumb,
-                Url = ApiClient.GetThumbImageApiUrl(m.Provider, m.Id, imageUrl)
+                Url = ApiClient.GetThumbImageApiUrl(m.Provider, m.Id, imageUrl, -1, true)
             });
 
             images.Add(new RemoteImageInfo
             {
                 ProviderName = Name,
                 Type = ImageType.Backdrop,
-                Url = ApiClient.GetBackdropImageApiUrl(m.Provider, m.Id, imageUrl)
+                Url = ApiClient.GetBackdropImageApiUrl(m.Provider, m.Id, imageUrl, -1, true)
             });
+        }
+
+        foreach (var image in images)
+        {
+            Logger.Info("Movie image url: {0} for item: {1}", image.Url, item.Name);
         }
 
         return images;

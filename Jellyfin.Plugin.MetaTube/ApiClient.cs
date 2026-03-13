@@ -47,7 +47,7 @@ public static class ApiClient
     private static string ComposeImageApiUrl(string path, string provider, string id, string url = default,
         double ratio = -1, double position = -1, bool auto = false, string badge = default)
     {
-        return ComposeUrl(GetPrimaryServer(), Path.Combine(path, provider, id), new NameValueCollection
+        return ComposeUrl(GetPrimaryServer(), $"{path.TrimEnd('/')}/{provider}/{id}", new NameValueCollection
         {
             { "url", url },
             { "ratio", ratio.ToString("R") },
@@ -60,7 +60,7 @@ public static class ApiClient
 
     private static string ComposeInfoApiUrl(string server, string path, string provider, string id, bool lazy)
     {
-        return ComposeUrl(server, Path.Combine(path, provider, id), new NameValueCollection
+        return ComposeUrl(server, $"{path.TrimEnd('/')}/{provider}/{id}", new NameValueCollection
         {
             { "lazy", lazy.ToString() }
         });
@@ -127,9 +127,30 @@ public static class ApiClient
 
     public static async Task<HttpResponseMessage> GetImageResponse(string url, CancellationToken cancellationToken)
     {
+        url = NormalizeImageUrl(url);
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Add("User-Agent", DefaultUserAgent);
+        request.Headers.Add("Accept", "image/*");
+
         return await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static string NormalizeImageUrl(string url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            return url;
+
+        var query = HttpUtility.ParseQueryString(uri.Query);
+        var innerUrl = query["url"];
+        if (string.IsNullOrWhiteSpace(innerUrl))
+            return url;
+
+        // Rebuild query so the nested url is safely encoded after any intermediate decoding.
+        var builder = new UriBuilder(uri)
+        {
+            Query = query.ToString() ?? string.Empty
+        };
+        return builder.ToString();
     }
 
     public static async Task<ActorInfo> GetActorInfoAsync(string provider, string id,
