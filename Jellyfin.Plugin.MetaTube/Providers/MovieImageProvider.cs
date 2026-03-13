@@ -24,11 +24,11 @@ public class MovieImageProvider : BaseProvider, IRemoteImageProvider, IHasOrder
         Logger.Info("Movie image source urls for item: {0} cover: {1} thumb: {2} backdrop: {3}",
             item.Name, m.CoverUrl, m.ThumbUrl, m.BigCoverUrl);
         var primaryUrl = ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, m.CoverUrl, pid.Position ?? -1, true);
-        var primaryThumbUrl = GetPublicImageUrl(primaryUrl);
+        var primaryClientUrl = GetClientImageUrl(primaryUrl);
         var thumbUrl = ApiClient.GetThumbImageApiUrl(m.Provider, m.Id, m.ThumbUrl, pid.Position ?? -1, true);
-        var thumbThumbUrl = GetPublicImageUrl(thumbUrl);
+        var thumbClientUrl = GetClientImageUrl(thumbUrl);
         var backdropUrl = ApiClient.GetBackdropImageApiUrl(m.Provider, m.Id, m.BigCoverUrl, -1, true);
-        var backdropThumbUrl = GetPublicImageUrl(backdropUrl);
+        var backdropClientUrl = GetClientImageUrl(backdropUrl);
 
         var images = new List<RemoteImageInfo>
         {
@@ -36,22 +36,22 @@ public class MovieImageProvider : BaseProvider, IRemoteImageProvider, IHasOrder
             {
                 ProviderName = Name,
                 Type = ImageType.Primary,
-                Url = primaryUrl,
-                ThumbnailUrl = primaryThumbUrl
+                Url = primaryClientUrl,
+                ThumbnailUrl = primaryClientUrl
             },
             new()
             {
                 ProviderName = Name,
                 Type = ImageType.Thumb,
-                Url = thumbUrl,
-                ThumbnailUrl = thumbThumbUrl
+                Url = thumbClientUrl,
+                ThumbnailUrl = thumbClientUrl
             },
             new()
             {
                 ProviderName = Name,
                 Type = ImageType.Backdrop,
-                Url = backdropUrl,
-                ThumbnailUrl = backdropThumbUrl
+                Url = backdropClientUrl,
+                ThumbnailUrl = backdropClientUrl
             }
         };
 
@@ -60,30 +60,33 @@ public class MovieImageProvider : BaseProvider, IRemoteImageProvider, IHasOrder
             Logger.Info("Movie preview image source url: {0} for item: {1}", imageUrl, item.Name);
             var previewPrimaryUrl =
                 ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, imageUrl, pid.Position ?? -1, true);
+            var previewPrimaryClientUrl = GetClientImageUrl(previewPrimaryUrl);
             images.Add(new RemoteImageInfo
             {
                 ProviderName = Name,
                 Type = ImageType.Primary,
-                Url = previewPrimaryUrl,
-                ThumbnailUrl = GetPublicImageUrl(previewPrimaryUrl)
+                Url = previewPrimaryClientUrl,
+                ThumbnailUrl = previewPrimaryClientUrl
             });
 
             var previewThumbUrl = ApiClient.GetThumbImageApiUrl(m.Provider, m.Id, imageUrl, -1, true);
+            var previewThumbClientUrl = GetClientImageUrl(previewThumbUrl);
             images.Add(new RemoteImageInfo
             {
                 ProviderName = Name,
                 Type = ImageType.Thumb,
-                Url = previewThumbUrl,
-                ThumbnailUrl = GetPublicImageUrl(previewThumbUrl)
+                Url = previewThumbClientUrl,
+                ThumbnailUrl = previewThumbClientUrl
             });
 
             var previewBackdropUrl = ApiClient.GetBackdropImageApiUrl(m.Provider, m.Id, imageUrl, -1, true);
+            var previewBackdropClientUrl = GetClientImageUrl(previewBackdropUrl);
             images.Add(new RemoteImageInfo
             {
                 ProviderName = Name,
                 Type = ImageType.Backdrop,
-                Url = previewBackdropUrl,
-                ThumbnailUrl = GetPublicImageUrl(previewBackdropUrl)
+                Url = previewBackdropClientUrl,
+                ThumbnailUrl = previewBackdropClientUrl
             });
         }
 

@@ -32,12 +32,13 @@ public class ActorImageProvider : BaseProvider, IRemoteImageProvider, IHasOrder
         var images = actorInfo.Images.Select(image =>
         {
             var primaryUrl = ApiClient.GetPrimaryImageApiUrl(actorInfo.Provider, actorInfo.Id, image, 0.5, true);
+            var primaryClientUrl = GetClientImageUrl(primaryUrl);
             return new RemoteImageInfo
             {
                 ProviderName = Name,
                 Type = ImageType.Primary,
-                Url = primaryUrl,
-                ThumbnailUrl = GetPublicImageUrl(primaryUrl)
+                Url = primaryClientUrl,
+                ThumbnailUrl = primaryClientUrl
             };
         }).ToList();
 

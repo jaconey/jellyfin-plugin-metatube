@@ -19,11 +19,11 @@ public abstract class BaseProvider
 
     public virtual string Name => Plugin.ProviderName;
 
-    protected string GetPublicImageUrl(string url)
+    protected string GetClientImageUrl(string url)
     {
         var publicBaseUrl = Configuration.PublicImageBaseUrl;
         return string.IsNullOrWhiteSpace(publicBaseUrl)
-            ? null
+            ? url
             : ApiClient.ReplaceImageBaseUrl(url, publicBaseUrl);
     }
 
