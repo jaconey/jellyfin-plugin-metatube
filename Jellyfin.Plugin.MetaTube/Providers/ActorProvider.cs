@@ -78,13 +78,14 @@ public class ActorProvider : BaseProvider, IRemoteMetadataProvider<Person, Perso
 
         foreach (var m in searchResults)
         {
+            var imageUrl = m.Images?.Any() == true
+                ? ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, m.Images.First(), 0.5, true)
+                : string.Empty;
             var result = new RemoteSearchResult
             {
                 Name = $"[{m.Provider}] {m.Name}",
                 SearchProviderName = Name,
-                ImageUrl = m.Images?.Any() == true
-                    ? ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, m.Images.First(), 0.5, true)
-                    : string.Empty
+                ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? string.Empty : GetClientImageUrl(imageUrl)
             };
             result.SetPid(Name, m.Provider, m.Id);
             results.Add(result);

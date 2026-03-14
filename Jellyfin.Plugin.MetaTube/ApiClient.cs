@@ -127,7 +127,6 @@ public static class ApiClient
 
     public static async Task<HttpResponseMessage> GetImageResponse(string url, CancellationToken cancellationToken)
     {
-        url = ResolveImageUrlForServer(url);
         url = NormalizeImageUrl(url);
         var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Add("User-Agent", DefaultUserAgent);
@@ -171,52 +170,6 @@ public static class ApiClient
             Scheme = publicBaseUri.Scheme,
             Host = publicBaseUri.Host,
             Port = publicBaseUri.IsDefaultPort ? -1 : publicBaseUri.Port,
-            Path = newPath
-        };
-        return builder.ToString();
-    }
-
-    private static string ResolveImageUrlForServer(string url)
-    {
-        var publicBaseUrl = Plugin.Instance.Configuration.PublicImageBaseUrl;
-        if (string.IsNullOrWhiteSpace(publicBaseUrl))
-            return url;
-
-        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
-            return url;
-
-        if (!Uri.TryCreate(publicBaseUrl, UriKind.Absolute, out var publicBaseUri))
-            return url;
-
-        var internalBaseUrl = GetPrimaryServer();
-        if (string.IsNullOrWhiteSpace(internalBaseUrl) ||
-            !Uri.TryCreate(internalBaseUrl, UriKind.Absolute, out var internalBaseUri))
-            return url;
-
-        var isPublicHostMatch =
-            string.Equals(uri.Host, publicBaseUri.Host, StringComparison.OrdinalIgnoreCase) &&
-            uri.Scheme == publicBaseUri.Scheme &&
-            (uri.IsDefaultPort == publicBaseUri.IsDefaultPort || uri.Port == publicBaseUri.Port);
-        if (!isPublicHostMatch)
-            return url;
-
-        var publicPrefix = publicBaseUri.AbsolutePath.TrimEnd('/');
-        var path = uri.AbsolutePath;
-        if (!string.IsNullOrWhiteSpace(publicPrefix) && publicPrefix != "/" &&
-            path.StartsWith(publicPrefix, StringComparison.OrdinalIgnoreCase))
-        {
-            path = path.Substring(publicPrefix.Length);
-            if (string.IsNullOrWhiteSpace(path))
-                path = "/";
-        }
-
-        var internalPrefix = internalBaseUri.AbsolutePath.TrimEnd('/');
-        var newPath = internalPrefix + path;
-        var builder = new UriBuilder(uri)
-        {
-            Scheme = internalBaseUri.Scheme,
-            Host = internalBaseUri.Host,
-            Port = internalBaseUri.IsDefaultPort ? -1 : internalBaseUri.Port,
             Path = newPath
         };
         return builder.ToString();

@@ -250,7 +250,7 @@ public class MovieProvider : BaseProvider, IRemoteMetadataProvider<Movie, MovieI
             {
                 var imageUrl = ApiClient.GetPrimaryImageApiUrl(
                     firstResult.Provider, firstResult.Id, firstResult.Images.First(), 0.5, true);
-                actor.ImageUrl = GetClientImageUrl(imageUrl);
+                actor.ImageUrl = imageUrl;
                 actor.SetPid(Name, firstResult.Provider, firstResult.Id);
             }
 
@@ -259,7 +259,7 @@ public class MovieProvider : BaseProvider, IRemoteMetadataProvider<Movie, MovieI
             {
                 var imageUrl = ApiClient.GetPrimaryImageApiUrl(
                     result.Provider, result.Id, result.Images.First(), 0.5, true);
-                actor.ImageUrl = GetClientImageUrl(imageUrl);
+                actor.ImageUrl = imageUrl;
             }
         }
         catch (Exception e)
