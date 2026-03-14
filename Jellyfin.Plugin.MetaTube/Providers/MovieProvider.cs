@@ -217,13 +217,14 @@ public class MovieProvider : BaseProvider, IRemoteMetadataProvider<Movie, MovieI
 
         foreach (var m in searchResults)
         {
+            var imageUrl = ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, m.ThumbUrl, 1.0, true);
             var result = new RemoteSearchResult
             {
                 Name = $"[{m.Provider}] {m.Number} {m.Title}",
                 SearchProviderName = Name,
                 PremiereDate = m.ReleaseDate.GetValidDateTime(),
                 ProductionYear = m.ReleaseDate.GetValidYear(),
-                ImageUrl = ApiClient.GetPrimaryImageApiUrl(m.Provider, m.Id, m.ThumbUrl, 1.0, true)
+                ImageUrl = GetClientImageUrl(imageUrl)
             };
             result.SetPid(Name, m.Provider, m.Id, pid.Position);
             results.Add(result);
@@ -247,16 +248,18 @@ public class MovieProvider : BaseProvider, IRemoteMetadataProvider<Movie, MovieI
             var firstResult = results.First();
             if (firstResult.Images?.Any() == true)
             {
-                actor.ImageUrl = ApiClient.GetPrimaryImageApiUrl(
+                var imageUrl = ApiClient.GetPrimaryImageApiUrl(
                     firstResult.Provider, firstResult.Id, firstResult.Images.First(), 0.5, true);
+                actor.ImageUrl = GetClientImageUrl(imageUrl);
                 actor.SetPid(Name, firstResult.Provider, firstResult.Id);
             }
 
             // Use the Gfriends to update the actor profile image, if any.
             foreach (var result in results.Where(result => result.Provider == Gfriends && result.Images?.Any() == true))
             {
-                actor.ImageUrl = ApiClient.GetPrimaryImageApiUrl(
+                var imageUrl = ApiClient.GetPrimaryImageApiUrl(
                     result.Provider, result.Id, result.Images.First(), 0.5, true);
+                actor.ImageUrl = GetClientImageUrl(imageUrl);
             }
         }
         catch (Exception e)
